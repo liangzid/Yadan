@@ -1,0 +1,29 @@
+#+title: YADAN WRITING PLANNING.
+#+date: Thu Nov 18 17:37:23 2021
+#+author: Zi Liang
+#+email: liangzid@stu.xjtu.edu.cn
+#+latex_class: elegantpaper
+#+filetags: ::
+
+
+* INTRODUCTION
+** WHAT IS YADAN
+   Yadan(雅丹，丫蛋) is a dialogue system engine, which can construct, train and evaluate dialogue systems automatically. It takes dialogue corpus, database (optional), knowledge base, init model as well as meta configure data as input, and export a dialogue system that is suitable for all proposed corpus.   
+** ENGINE-INPUT
+*** CORPUS
+*** DATABASE
+*** KNOWLEDGEBASE
+*** INITMODEL
+*** METADATA-CONFIG-FILE
+** ENGINE-OUTPUT
+*** CORPUS-AFTER-ANALYSE
+*** OUTPUT-MODEL
+
+
+
+
+
+
+
+
+
