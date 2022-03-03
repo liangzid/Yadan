@@ -21,3 +21,20 @@ sea-orm = { version = "0.5", features = [ "runtime-async-std-native-tls", "sqlx-
 anyhow = "1"
 async-std = {version="1",features = ["attributes"]}
 futures="0.3"
+
+zip="0.5"
+
+jieba-rs={version="0.6",features=["default-dict","tfidf","textrank"]}
+
+word2vec="0.3.3"
+
+ndarray="0.15.0"
+
+linfa="0.5"
+linfa-clustering="0.5"
+linfa-nn="0.5"
+num-traits="0.2"
+ndarray-rand="0.2"
+rand_isaac="0.3"
+approx="0.5"
+rand_core="0.6"

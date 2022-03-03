@@ -6,6 +6,9 @@ use std::hash::Hash;
 use std::io::BufRead;
 use std::str::FromStr;
 
+// use ndarray_rand::rand::SeedableRng;
+// extern crate rand;
+
 #[macro_use]
 extern crate serde;
 extern crate serde_derive;
@@ -18,6 +21,9 @@ use serde::{Serialize,Deserialize};
 
 use async_std;
 
+pub mod yadan_utils;
+use yadan_utils::unzip;
+
 // use serde_derive::{Serialize,Deserialize};
 
 pub mod core_toda;
@@ -25,10 +31,14 @@ use core_toda::{Dialogues, Database};
 
 pub mod toda_database;
 use toda_database::{fake_parse_database_json_file,fake_retrieval_entity_with_eq_attris};
-// use toda_database::{make_connect};
 use toda_database::{get_schema_from_sqlite,
 		    retri_entit_for_attri,
 		    Slot,retri_entit_for_attris};
+
+pub mod toda_analysis;
+use toda_analysis::{read_data_from_dir,
+		    read_data_from_zip,
+		    domain_mining,};
 
 fn test_core_toda(){
     // let filepath="/home/liangzi/multiwoz/multiwoz1.0/data.json";
@@ -87,12 +97,21 @@ async fn test_core_db(){
 
 }
 
-fn type_of<T>(_: T) -> &'static str {
-    std::any::type_name::<T>()
+fn test_toda_analysis(){
+    // let dpath:&str="/mnt/d/data/unlabeled_dialogue_for_toda";
+    // let dialogues=read_data_from_dir(dpath);
+    // println!("{:?}",dialogues[0]);
+
+    let fpath:&str="/mnt/d/data/unlabeled.zip";
+    let dialogues=read_data_from_zip(fpath);
+    // println!("{:?}",dialogues[0]);
+
+    let clusters=domain_mining(&dialogues,"/home/liangzi/word2vec/english_wiki.bin");
 }
 
 #[async_std::main]
 async fn main() {
     // test_core_toda();
-    test_core_db().await;
+    // test_core_db().await;
+    test_toda_analysis();
 }
