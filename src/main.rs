@@ -26,21 +26,25 @@ use yadan_utils::unzip;
 
 // use serde_derive::{Serialize,Deserialize};
 
-pub mod core_toda;
-use core_toda::{Dialogues, Database};
+// pub mod core_toda;
+// use core_toda::{Dialogues, Database};
+
+pub mod yadan_typing;
+use yadan_typing::{Dialogues, DatabaseMatching};
 
 pub mod toda_database;
 use toda_database::{fake_parse_database_json_file,fake_retrieval_entity_with_eq_attris};
 use toda_database::{get_schema_from_sqlite,
 		    retri_entit_for_attri,
-		    Slot,retri_entit_for_attris};
+		    DBSlot, retri_entit_for_attris};
 
 pub mod toda_analysis;
 use toda_analysis::{read_data_from_dir,
 		    read_data_from_zip,
-		    domain_mining,};
+		    domain_mining,
+                    get_turn_distribution,};
 
-fn test_core_toda(){
+fn test_yadan_typing(){
     // let filepath="/home/liangzi/multiwoz/multiwoz1.0/data.json";
     let filepath="/home/liangzi/multiwoz/soloist/multiwoz-2.1/train.json";
     let dialogues=Dialogues::from_standard(&filepath);
@@ -76,7 +80,7 @@ async fn test_core_db(){
     let schema=get_schema_from_sqlite("/home/liangzi/test.db").await;
     // println!("{:?}",schema);
 
-    let target_slot=Slot::find_Slot_with_name(&schema["COMPANY"].0,"NAME");
+    let target_slot=DBSlot::find_Slot_with_name(&schema["COMPANY"].0,"NAME");
     let matched_results=retri_entit_for_attri("/home/liangzi/test.db",
 					      "SELECT * FROM COMPANY WHERE AGE>25",
 					      &target_slot).await;
@@ -87,8 +91,8 @@ async fn test_core_db(){
     let schema=get_schema_from_sqlite("/home/liangzi/test.db").await;
     // println!("{:?}",schema);
 
-    let target_slot1=Slot::find_Slot_with_name(&schema["COMPANY"].0,"NAME");
-    let target_slot2=Slot::find_Slot_with_name(&schema["COMPANY"].0,"ID");
+    let target_slot1=DBSlot::find_Slot_with_name(&schema["COMPANY"].0,"NAME");
+    let target_slot2=DBSlot::find_Slot_with_name(&schema["COMPANY"].0,"ID");
     let matched_results=retri_entit_for_attris("/home/liangzi/test.db",
 					      "SELECT * FROM COMPANY WHERE AGE>25",
 					      &vec![target_slot1,target_slot2]).await;
@@ -106,12 +110,16 @@ fn test_toda_analysis(){
     let dialogues=read_data_from_zip(fpath);
     // println!("{:?}",dialogues[0]);
 
-    let clusters=domain_mining(&dialogues,"/home/liangzi/word2vec/english_wiki.bin");
+    // let clusters=domain_mining(&dialogues,"/mnt/d/code/wiki-word2vec-chinese.bin");
+
+    // let distirbutions= get_turn_distribution(&dialogues);
+    // println!("distributions: {:?}",distirbutions);
+
 }
 
 #[async_std::main]
 async fn main() {
-    // test_core_toda();
+    // test_yadan_typing();
     // test_core_db().await;
     test_toda_analysis();
 }

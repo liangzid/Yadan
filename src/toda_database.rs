@@ -16,28 +16,27 @@ use serde::{Serialize,Deserialize};
 use sqlx::{Connection,Executor,query,Row};
 use futures::TryStreamExt;
 
-//// Data Structure for Parsing TOD Schema.
-type Domain=String;
-type Act=String; // note that here the Structure of Act is not the its finnally shape.
-// we define Schema as a hiearchical structure, which consists of
-// the key information of Database.
-type Schema=HashMap<Domain,(Vec<Slot>,Vec<Act>)>;
+// pub mod yadan_typing;
+use yadan::yadan_typing::{SDomain,SAct,OriginDataBaseItem,EncodedDataBaseItem,
+			  vec_str,vec_f32,DatabaseValue};
 
 // Slot own its name, e.g. `price`, `address`, and `salary`,
 // and `slot_type` indicates its datatype in database.
 #[derive(Debug,Default,Clone,)]
-pub struct Slot{
+pub struct DBSlot {
     name:String,
     slot_type:String,
 }
 
-impl Slot{
+pub type Schema=HashMap<SDomain,(Vec<DBSlot>,Vec<SAct>)>;
+
+impl DBSlot{
     // give a Sequence of Slots and the search name, return
-    // the Slot I want to finded. If there are not one Slots
+    // the DBSlot I want to finded. If there are not one Slots
     // matched, it will return the first. And it will return
-    // a default results if there is no matched Slot.
-    pub fn find_Slot_with_name(slots:&Vec<Slot>,name:&str)->Slot{
-	let mut target=Slot::default();
+    // a default results if there is no matched DBSlot.
+    pub fn find_Slot_with_name(slots:&Vec<DBSlot>,name:&str)->DBSlot{
+	let mut target=DBSlot::default();
 	for s in slots{
 	    if s.name==name{
 		target=s.clone();
@@ -53,8 +52,8 @@ impl Slot{
     //              WHERE type = 'table' AND tbl_name = 'table_name'`
     // will return a column named sql, which is the create table
     // sql language of table_name. this function parses such SQL sentence.
-    pub fn parse_SQLite(sql_results:&str)->Vec<Slot>{
-	let mut res:Vec<Slot>=vec![];
+    pub fn parse_SQLite(sql_results:&str)->Vec<DBSlot>{
+	let mut res:Vec<DBSlot>=vec![];
 	let slices=sql_results.split("\n");
 	for slice in slices.into_iter(){
 	    
@@ -75,7 +74,7 @@ impl Slot{
 		    elements.push(&thing);
 		}
 	    }
-	    res.push(Slot{name: elements.get(0).unwrap().to_string(),
+	    res.push(DBSlot{name: elements.get(0).unwrap().to_string(),
 			  slot_type:elements.get(1).unwrap().to_string()});
 	}
 	res
@@ -89,8 +88,8 @@ impl Slot{
 pub async fn get_schema_from_sqlite(url:&str)->Schema{
 
     let mut finnally_schema:Schema=HashMap::new();
-    let mut domains:Vec<Domain>=vec![];
-    let empty_acts:Vec<Act>=vec![];
+    let mut domains:Vec<SDomain>=vec![];
+    let empty_acts:Vec<SAct>=vec![];
 
     // make connection
     let mut conn1=sqlx::SqliteConnection::connect(url).await.unwrap();
@@ -110,7 +109,7 @@ pub async fn get_schema_from_sqlite(url:&str)->Schema{
     for domain in domains{
 	// if domain==""{continue;}
 	
-	let mut slots:Vec<Slot>=vec![];
+	let mut slots:Vec<DBSlot>=vec![];
 	let q="SELECT sql FROM sqlite_master WHERE type = 'table' AND tbl_name =".to_owned()+&"'"+&domain+&"'";
 	let mut schemas=sqlx::query(&q).fetch(&mut conn2);
 	    
@@ -119,7 +118,7 @@ pub async fn get_schema_from_sqlite(url:&str)->Schema{
 
 	    let slot_name:&str=per_attribute.try_get("sql").unwrap();
 	    // println!("{:?}",slot_name);
-	    slots.append(&mut Slot::parse_SQLite(slot_name));
+	    slots.append(&mut DBSlot::parse_SQLite(slot_name));
 	}
 	
 	finnally_schema.insert(domain.to_string(),(slots,empty_acts.clone()));
@@ -140,7 +139,7 @@ pub async fn get_schema_from_sqlite(url:&str)->Schema{
 // that matched the query.
 // above procedure is async, which means you should
 // add `.await` when you use this function. 
-pub async fn retri_entit_for_attri(db_url:&str,sql_sent:&str,attri:&Slot)
+pub async fn retri_entit_for_attri(db_url:&str,sql_sent:&str,attri:&DBSlot)
 				      ->Vec<String>{
     let mut matched_results:Vec<String>=vec![];
     
@@ -181,7 +180,7 @@ pub async fn retri_entit_for_attri(db_url:&str,sql_sent:&str,attri:&Slot)
 // query. the shape of returned recodes is a sequences of a hashmap, will
 // the hashmap acts as a dictionary for filtered row info., and all hashmaps
 // in Vec have the same key, which is attris.name
-pub async fn retri_entit_for_attris(db_url:&str,sql_sent:&str,attris:&Vec<Slot>)
+pub async fn retri_entit_for_attris(db_url:&str,sql_sent:&str,attris:&Vec<DBSlot>)
 				      ->Vec<HashMap<String,String>>{
     let mut matched_results:Vec<HashMap<String,String>>=vec![];
     
@@ -225,19 +224,6 @@ pub async fn retri_entit_for_attris(db_url:&str,sql_sent:&str,attris:&Vec<Slot>)
 // BLEW Functions were specifically designed for MultiWOz Json Style DBs.
 // ----------------------------------------------------------------------
 
-//// parse database with Json.
-pub type OriginDataBaseItem=HashMap<Option<String>,Value>;
-pub type EncodedDataBaseItem=HashMap<String,String>;
-pub type vec_str=Vec<String>;
-pub type vec_f32=Vec<f32>;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum DatabaseValue{
-    Null,
-    String(String),
-    vec_str(vec_str),
-    vec_f32(vec_f32),
-}
 
 // Parse fake databases, and return a Dictionary Sequence.
 // Note that EncodedDataBaseItem is the HashMap, and Vec<x> is the structure
