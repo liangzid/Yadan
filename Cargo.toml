@@ -31,3 +31,7 @@ ndarray-rand="0.2"
 rand_isaac="0.3"
 approx="0.5"
 rand_core="0.6"
+rust-bert="0.17.0"
+rust_tokenizers="7.0.1"
+# tch="~1.11.0"
+

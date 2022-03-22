@@ -44,6 +44,9 @@ use toda_analysis::{read_data_from_dir,
 		    domain_mining,
                     get_turn_distribution,};
 
+pub mod yadan_model;
+use yadan_model::{SOLOIST};
+
 fn test_yadan_typing(){
     // let filepath="/home/liangzi/multiwoz/multiwoz1.0/data.json";
     let filepath="/home/liangzi/multiwoz/soloist/multiwoz-2.1/train.json";
@@ -117,9 +120,20 @@ fn test_toda_analysis(){
 
 }
 
+fn test_yadan_model(){
+    let pretrained_path="./augpt-bigdata";
+    let soloist_model:SOLOIST=SOLOIST::init(pretrained_path);
+
+    let prefix_his:&str="I would like a taxi from Saint John's college to Pizza Hut Fen Ditton.";
+    let result:String=soloist_model.forward(prefix_his);
+    println!("{}",result);
+
+}
+
 #[async_std::main]
 async fn main() {
     // test_yadan_typing();
     // test_core_db().await;
-    test_toda_analysis();
+    // test_toda_analysis();
+    test_yadan_model();
 }
