@@ -28,7 +28,7 @@ use rand_isaac::Isaac64Rng;
 
 use std::time::Instant;
 
-use yadan::yadan_typing::{DialogueTurn, Role, UnlabeledDialogue};
+use crate:: yadan_typing::{DialogueTurn, Role, UnlabeledDialogue};
 
 // Given a path of directory, return the raw corpus. The raw corpus
 // can be seen as a vector of UnlabeledDialogue.

@@ -1,9 +1,10 @@
-use yadan::yandan_typing::{Intent,SDomain,SSlot,
+use crate::yadan_typing::{Intent,SDomain,SSlot,
 			   DialogueValue,TurnState,SqlQ,
 			   History,Belief,Act};
 use std::path::PathBuf;
+use std::collections::HashMap;
 
-use torch_sys::{nn,Device,Tensor};
+use tch::{nn, Device, Tensor};
 
 use rust_tokenizers::tokenizer::Gpt2Tokenizer;
 use rust_bert::gpt2::{GPT2LMHeadModel, Gpt2Config,GPT2Generator};
@@ -14,19 +15,24 @@ use rust_bert::resources::{LocalResource, Resource};
 use rust_bert::Config;
 
 pub trait utterance_nlu {
-    fn utter2intents(&self,utter:&str)->Vec<Intent>{}
-    fn utter2domains(&self,utter:&str)->Vec<SDomain>{}
-    fn utter2svpairs(&self,utter:&str)->Vec<(SSlot,DialogueValue)>{}
-    fn utter2turn_state(&self,utter:&str)->TurnState{}
-    fn utter2sqlq(&self,utter:&str)->SqlQ{}
+    fn utter2intents(&self,utter:&str)->Vec<Intent>{let x:Vec<Intent>=vec![]; x}
+    fn utter2domains(&self,utter:&str)->Vec<SDomain>{let x:Vec<SDomain>=vec![];x}
+    fn utter2svpairs(&self,utter:&str)->Vec<(SSlot,DialogueValue)>
+    {
+	let x:Vec<(SSlot,DialogueValue)>=vec![];
+     x}
+    fn utter2turn_state(&self,utter:&str)->TurnState{let x:TurnState=vec![];x}
+    fn utter2sqlq(&self,utter:&str)->SqlQ{String::from("")}
 }
 
 pub trait history_nlu {
-    fn his2intents(&self,history:&History)->Vec<Intent>{}
-    fn his2domains(&self,history:&History)->Vec<SDomain>{}
-    fn his2svpairs(&self,history:&History)->Vec<(SSlot,DialogueValue)>{}
-    fn his2state(&self,history:&History)->Belief{}
-    fn his2sqlq(&self,history:&History)->SqlQ{}
+    fn his2intents(&self,history:&History)->Vec<Intent>{let x:Vec<Intent>=vec![];x}
+    fn his2domains(&self,history:&History)->Vec<SDomain>{let x:Vec<SDomain>=vec![];x}
+    fn his2svpairs(&self,history:&History)->Vec<(SSlot,DialogueValue)>
+    {let x:Vec<(SSlot,DialogueValue)>=vec![];
+     x}
+    fn his2state(&self,history:&History)->Belief{let mut x:Belief=HashMap::new();x}
+    fn his2sqlq(&self,history:&History)->SqlQ{String::from("")}
 }
 
 pub type UtterNLU=dyn utterance_nlu;
@@ -39,11 +45,10 @@ enum NLUModel{
 
 pub trait dst{
     fn update(&self,belief:&mut Belief,new_state:&TurnState){}
-
 }
 
 pub trait Decision {
-    fn get_acts(&self,belief_state:&Belief)->Vec<Act>{}
+    fn get_acts(&self,belief_state:&Belief)->Vec<Act>{let x:Vec<Act>=vec![];x}
 }
 pub trait Action_NLG{
     fn get_response(&self,acts:&Vec<Act>)->String{String::from("")}
@@ -112,8 +117,9 @@ pub enum Pipeline<'a>{
 
 
 pub struct SOLOIST{
-    backbone: GPT2LMHeadModel,
-    tokenizer: Gpt2Tokenizer,
+    generator: GPT2Generator,
+    // backbone: GPT2LMHeadModel,
+    // tokenizer: Gpt2Tokenizer,
     // lexicalizer: Box<dyn Lexicalize>,
 }
 
@@ -149,38 +155,49 @@ impl SOLOIST{
 	// loading tokenizer  and pretrained models.
 	// Noting: here the model can be checkpoints or universal pretrained models.
 	let config_path=pretrained_path.to_owned()+"/config.json";
-	let vocab_path=pretrained_path.to_owned()+"/vocab.txt";
-	let model_path=pretrained_path.to_owned()+"/model.ot";
+	let vocab_path=pretrained_path.to_owned()+"/vocab.json";
+	let weights_path=pretrained_path.to_owned()+"/rust_model.ot";
+	let merges_path=pretrained_path.to_owned()+"/merges.txt";
 
 	let config_resource=Resource::Local(LocalResource{
 	    local_path: PathBuf::from(&config_path)});
 	let vocab_resource=Resource::Local(LocalResource{
-	    local_path: PathBuf::from(&config_path)});
+	    local_path: PathBuf::from(&vocab_path)});
 	let merges_resource=Resource::Local(LocalResource{
-	    local_path: PathBuf::from(&config_path)});
+	    local_path: PathBuf::from(&merges_path)});
 	let weights_resource=Resource::Local(LocalResource{
-	    local_path: PathBuf::from(&config_path)});
+	    local_path: PathBuf::from(&weights_path)});
 
-	let config_path=config_resource.get_local_path();
-	let vocab_path=vocab_resource.get_local_path();
-	let merges_path=merges_resource.get_local_path();
-	let weights_path=weights_resource.get_local_path();
+	// let config_path=config_resource.get_local_path().unwrap();
+	// let vocab_path=vocab_resource.get_local_path().unwrap();
+	// let merges_path=merges_resource.get_local_path().unwrap();
+	// let weights_path=weights_resource.get_local_path().unwrap();
 
-	let device= Device::cuda_if_available();
-	let mut vs = nn::VarStore::new(device);
+	// let device= Device::cuda_if_available();
+	// let mut vs = nn::VarStore::new(device);
 
-	let tokenizer = Gpt2Tokenizer::from_file(
-	    vocab_path.to_str().unwrap(),
-	    merges_path.to_str().unwrap(),
-	    true,
-	);
-	let config=Gpt2Config::from_file(config_path);
-	let backbone = GPT2LMHeadModel::new(&vs.root(),&config);
-	vs.load(weights_path);
+	// let tokenizer = Gpt2Tokenizer::from_file(
+	//     vocab_path.to_str().unwrap(),
+	//     merges_path.to_str().unwrap(),
+	//     true,
+	// ).unwrap();
+	// let config=Gpt2Config::from_file(config_path);
+	// let backbone = GPT2LMHeadModel::new(&vs.root(),&config);
+	// vs.load(weights_path);
 
 	// loading lexicalizer
-	let soloist= SOLOIST { backbone:backbone, tokenizer:tokenizer };
-	soloist
+	let gen_config=GenerateConfig{
+	    model_resource:weights_resource,
+	    config_resource:config_resource,
+	    merges_resource:merges_resource,
+	    vocab_resource:vocab_resource,
+	    max_length: 500,
+	    do_sample: true,
+	    ..Default::default()
+	};
+	let mut gpt2_gen=GPT2Generator::new(gen_config).unwrap();
+	let soloist= SOLOIST { generator:gpt2_gen };
+	return soloist
     }
 
     pub fn forward(self,prefix_his:&str)->String{
@@ -192,12 +209,12 @@ impl SOLOIST{
             // prefix_allowed_tokens_fn: Some(&force_one_paragraph);
 	};
 
-	let output = self.backbone.generate(
+	let output = self.generator.generate(
 	    Some(&[prefix_his]),
 	    Some(generate_options),
 	);
 
-	let sequence:String=output.at(0).unwrap().text;
+	let sequence:String=output[0].text.clone();
 	return sequence;
     }
 }

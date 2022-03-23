@@ -17,7 +17,7 @@ use sqlx::{Connection,Executor,query,Row};
 use futures::TryStreamExt;
 
 // pub mod yadan_typing;
-use yadan::yadan_typing::{SDomain,SAct,OriginDataBaseItem,EncodedDataBaseItem,
+use crate::yadan_typing::{SDomain,SAct,OriginDataBaseItem,EncodedDataBaseItem,
 			  vec_str,vec_f32,DatabaseValue};
 
 // Slot own its name, e.g. `price`, `address`, and `salary`,
@@ -88,7 +88,7 @@ impl DBSlot{
 pub async fn get_schema_from_sqlite(url:&str)->Schema{
 
     let mut finnally_schema:Schema=HashMap::new();
-    let mut domains:Vec<SDomain>=vec![];
+    let mut domains:Vec<String>=vec![];
     let empty_acts:Vec<SAct>=vec![];
 
     // make connection
@@ -100,17 +100,17 @@ pub async fn get_schema_from_sqlite(url:&str)->Schema{
 	.fetch(&mut conn1);
     while let Some(table_name_row)=table_query_res.try_next().await.unwrap(){
 
-	let domain_name:&str=table_name_row.try_get("tbl_name").unwrap();
+	let domain_name:String=table_name_row.try_get("tbl_name").unwrap();
 	// println!("{}",domain_name);
-	domains.push(domain_name.to_string());
+	domains.push(domain_name.clone());
     }
 
     //find the schema of each domain, which can contrut the task-oriented dialogue schema
-    for domain in domains{
+    for domain in domains.into_iter(){
 	// if domain==""{continue;}
 	
 	let mut slots:Vec<DBSlot>=vec![];
-	let q="SELECT sql FROM sqlite_master WHERE type = 'table' AND tbl_name =".to_owned()+&"'"+&domain+&"'";
+	let q=r#"SELECT sql FROM sqlite_master WHERE type = 'table' AND tbl_name ="#.to_owned()+&"'"+&domain+&"'";
 	let mut schemas=sqlx::query(&q).fetch(&mut conn2);
 	    
 	while let Some(per_attribute)=schemas.try_next().await.unwrap(){

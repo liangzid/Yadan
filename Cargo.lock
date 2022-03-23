@@ -3101,6 +3101,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "sqlx",
+ "tch",
  "word2vec",
  "zip",
 ]
