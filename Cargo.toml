@@ -10,7 +10,6 @@ edition = "2021"
 # rand_distr="0.4"
 # clap="1.0"
 # ansi_term="0.12.0"
-
 serde_json = "1.0"
 serde="1.0"
 serde_derive="1.0"
@@ -34,4 +33,8 @@ rand_core="0.6"
 rust-bert="0.17.0"
 rust_tokenizers="7.0.1"
 tch="~0.6.0"
+async-trait="0.1"
 
+[[bin]]
+name="convert-utils"
+path="src/utils/convert_models.rs"

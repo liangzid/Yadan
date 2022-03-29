@@ -6,7 +6,6 @@ use std::hash::Hash;
 use std::io::BufRead;
 use std::str::FromStr;
 
-
 // use ndarray_rand::rand::SeedableRng;
 // extern crate rand;
 
@@ -21,6 +20,9 @@ use serde_json::{Value, Map, Error,};
 use serde::{Serialize,Deserialize};
 
 use async_std;
+
+pub mod yadan_error;
+use yadan_error::YadanInferenceError;
 
 pub mod yadan_utils;
 use yadan_utils::unzip;
@@ -46,7 +48,8 @@ use toda_analysis::{read_data_from_dir,
                     get_turn_distribution,};
 
 pub mod yadan_model;
-use yadan_model::{SOLOIST};
+pub mod modeling_soloist;
+use modeling_soloist::{SOLOIST};
 
 fn test_yadan_typing(){
     // let filepath="/home/liangzi/multiwoz/multiwoz1.0/data.json";
@@ -121,14 +124,14 @@ fn test_toda_analysis(){
 
 }
 
-fn test_yadan_model(){
+async fn test_yadan_model(){
     // let pretrained_path="/home/zliang/code/distilgpt2/";
     let pretrained_path="/home/zliang/backinference/augpt-bigdata/";
     let soloist_model:SOLOIST=SOLOIST::init(pretrained_path);
 
     let prefix_his:&str="I would like a taxi from Saint John's college to Pizza Hut Fen Ditton.";
-    let result:String=soloist_model.forward(prefix_his);
-    println!("{}",result);
+    // let result:String=soloist_model.forward(prefix_his);
+    // println!("{}",result);
 
 }
 

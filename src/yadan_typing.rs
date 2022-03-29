@@ -16,6 +16,8 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Error, Map, Value};
+
+use crate::toda_database::DBSlot;
 // use serde_derive::{Serialize,Deserialize};
 
 // --------------------------------------------------------------------
@@ -252,6 +254,25 @@ pub fn decode_belief(e_belief: &str) -> Belief {
         }
     }
     belief
+}
+
+pub fn Belief2DBSlots(b:&Belief)->HashMap<String,Vec<DBSlot>>{
+    let mut db_slots:HashMap<String,Vec<DBSlot>>=HashMap::new();
+    for (domain,per_state) in b.into_iter(){
+	match domain{
+	    Some(d)=>{
+		let mut dbs:Vec<DBSlot>=vec![];
+		let mut this_vec:Vec<String>=vec![];
+		for (s,v) in per_state{
+		    this_vec.push(s.clone());
+		    dbs.push(DBSlot{name:s.clone(), slot_type:String::from("STR")});
+		}
+		db_slots.insert(d.clone(),dbs);
+	    }
+	    None=>{continue;}
+	}
+    }
+    db_slots
 }
 
 // transfer a string acts into a acts structure.

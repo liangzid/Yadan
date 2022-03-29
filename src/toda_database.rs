@@ -24,8 +24,8 @@ use crate::yadan_typing::{SDomain,SAct,OriginDataBaseItem,EncodedDataBaseItem,
 // and `slot_type` indicates its datatype in database.
 #[derive(Debug,Default,Clone,)]
 pub struct DBSlot {
-    name:String,
-    slot_type:String,
+    pub name:String,
+    pub slot_type:String,
 }
 
 pub type Schema=HashMap<SDomain,(Vec<DBSlot>,Vec<SAct>)>;

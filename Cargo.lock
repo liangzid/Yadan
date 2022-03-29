@@ -3084,6 +3084,7 @@ dependencies = [
  "anyhow",
  "approx 0.5.1",
  "async-std",
+ "async-trait",
  "futures",
  "jieba-rs",
  "linfa",
