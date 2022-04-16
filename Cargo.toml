@@ -34,7 +34,15 @@ rust-bert="0.17.0"
 rust_tokenizers="7.0.1"
 tch="~0.6.0"
 async-trait="0.1"
+simple_input="0.4"
+
+[[bin]]
+name="main"
+path="src/main.rs"
 
 [[bin]]
 name="convert-utils"
 path="src/utils/convert_models.rs"
+
+[workspace]
+default-numbers=['main']

@@ -2462,6 +2462,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "simple_input"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa41a909f42f472032b66a7de24725c5999edefe69f6fa21b1746ba840bb981b"
+
+[[package]]
 name = "siphasher"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3101,6 +3107,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+ "simple_input",
  "sqlx",
  "tch",
  "word2vec",

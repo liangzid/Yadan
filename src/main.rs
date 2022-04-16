@@ -124,14 +124,17 @@ fn test_toda_analysis(){
 
 }
 
-async fn test_yadan_model(){
-    // let pretrained_path="/home/zliang/code/distilgpt2/";
-    let pretrained_path="/home/zliang/backinference/augpt-bigdata/";
+fn test_yadan_model(){
+    // let pretrained_path="/home/liangzi/code/distilgpt2/";
+    let pretrained_path="/home/liangzi/backinference/augpt-bigdata/";
     let soloist_model:SOLOIST=SOLOIST::init(pretrained_path);
 
     let prefix_his:&str="I would like a taxi from Saint John's college to Pizza Hut Fen Ditton.";
-    // let result:String=soloist_model.forward(prefix_his);
-    // println!("{}",result);
+    let result:String=soloist_model.generate(prefix_his);
+
+    //running interaction.
+    soloist_model.interact();
+    println!("{}",result);
 
 }
 
